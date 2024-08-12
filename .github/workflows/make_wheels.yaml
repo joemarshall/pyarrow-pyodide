@@ -34,10 +34,10 @@ jobs:
         with:
           version: ${{env.EMVERSION}}
           actions-cache-folder: 'emsdk-cache'
-#      - name: Arrow build
-#        run: |
-#          sudo apt-get install ninja-build
-#          pyodide build-recipes-no-deps --recipe-dir . pyarrow
+      - name: Arrow build
+        run: |
+          sudo apt-get install ninja-build
+          pyodide build-recipes-no-deps --recipe-dir . pyarrow
       - name: Get info from built wheel file
         run: |
           # get arrow version and wheel name and make metafile
@@ -60,4 +60,5 @@ jobs:
         with:
           name: build_wheel
           path: pyarrow/dist
+          retention-days: 1
 
