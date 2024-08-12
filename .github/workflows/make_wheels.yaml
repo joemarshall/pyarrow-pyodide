@@ -1,0 +1,41 @@
+name: main
+
+on:
+  push:
+  pull_request:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+        matrix:
+          include:
+          - pyodide: 0.27.3
+            python: 3.12
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: install pyodide build
+        run: pip install pyodide-build=${{ matrix.pyodide }}
+      - name: Get emscripten version
+        run: python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' >> $GITHUB_ENV
+      - name: Install emsdk ${{env.EMVERSION}}
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{env.EMVERSION}}
+          actions-cache-folder: 'emsdk-cache'
+      - run: mkdir dist
+      - name: Arrow build
+        run: pyodide build-recipe-no-deps --recipe-dir . --target-dir dist pyarrow
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build_wheel
+          path: dist
+
