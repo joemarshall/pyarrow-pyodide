@@ -11,8 +11,6 @@ requirements:
     - numpy
     - pandas
     - pyodide-unix-timezones
-  host:
-    - numpy
 extra:
   recipe-maintainers:
     - joemarshall
