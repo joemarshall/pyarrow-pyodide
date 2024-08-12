@@ -1,29 +1,35 @@
 name: main
 
 on:
-  push:
-  pull_request:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+    inputs:
+      python:
+        description: 'Python version'
+        required: true
+        default: '3.12'
+        type: choice
+        options:
+          - 3.12
+          - 3.13
+          - 3.14
+          - 3.15
+      pyodide:
+        description: 'New Pyodide version to build for'
+        required: true
+        type: string
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
-    strategy:
-        matrix:
-          include:
-          - pyodide: 0.27.3
-            python: 3.12
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: ${{ inputs.python }}
       - name: install pyodide build
-        run: pip install pyodide-build==${{ matrix.pyodide }} wheel-filename
+        run: pip install pyodide-build==${{ inputs.pyodide }} wheel-filename
       - name: Get emscripten version
         run: |
           # import here will download the pyodide xbuild env which outputs a line to
@@ -47,18 +53,23 @@ jobs:
           echo ARROW_WHEEL=${ARROW_WHEEL}>>$GITHUB_ENV
           echo ARROW_VERSION=${ARROW_VERSION}>>$GITHUB_ENV
           echo ARROW_SHA256=${ARROW_SHA256}>>$GITHUB_ENV
-          echo ARROW_RELEASE_URL=https://github.com/${{ github.repository_owner }}/${{ github.repository }}/releases/download/${ARROW_VERSION}/${ARROW_WHEEL}
+          echo ARROW_RELEASE_URL=https://github.com/${{ github.repository_owner }}/${{ github.repository }}/releases/download/${{ inputs.pyodide }}/${ARROW_WHEEL}
           sed "s:#RELEASE_URL#:${AARROW_RELEASE_URL}:g;s:#RELEASE_SHA256#:${ARROW_SHA256}:g;s:#RELEASE_VERSION#:${ARROW_VERSION}:g;"\
            < pyarrow/_meta_built_template.yaml > pyarrow/dist/${ARROW_WHEEL}.yaml
-      - name: Create release if not exist
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{env.ARROW_VERSION}}
-          name: Builds of Arrow ${{env.ARROW_VERSION}}
-          files: pyarrow/dist
-      - uses: actions/upload-artifact@v4
+      - name: Upload the build artifacts for build debugging purposes
+        uses: actions/upload-artifact@v4
         with:
           name: build_wheel
           path: pyarrow/dist
           retention-days: 1
+      - name: Create release 
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ inputs.pyodide }}
+          name: Build of Arrow for pyodide ${{ inputs.pyodide}}. pyarrow version = ${{env.ARROW_VERSION}}
+          artifacts: pyarrow/dist/*
+          replacesArtifacts: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          prerelease: true
 
