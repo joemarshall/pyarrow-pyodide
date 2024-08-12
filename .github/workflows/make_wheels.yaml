@@ -25,7 +25,10 @@ jobs:
       - name: install pyodide build
         run: pip install pyodide-build==${{ matrix.pyodide }}
       - name: Get emscripten version
-        run: python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' >> $GITHUB_ENV
+        run: |
+          # import here will download the pyodide xbuild env which outputs a line to
+          # stdout, hence the tail -1
+          python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' | tail -1 >> $GITHUB_ENV
       - name: Install emsdk ${{env.EMVERSION}}
         uses: mymindstorm/setup-emsdk@v14
         with:
