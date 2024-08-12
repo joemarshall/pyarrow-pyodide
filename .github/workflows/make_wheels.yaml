@@ -36,7 +36,7 @@ jobs:
           actions-cache-folder: 'emsdk-cache'
       - run: mkdir dist
       - name: Arrow build
-        run: pyodide build-recipes-no-deps --recipe-dir . --target-dir dist pyarrow
+        run: pyodide build-recipes-no-deps --recipe-dir . --target-install-dir dist pyarrow
       - uses: actions/upload-artifact@v4
         with:
           name: build_wheel
