@@ -37,7 +37,7 @@ jobs:
       - name: Arrow build
         run: |
           mkdir dist
-          apt-get install ninja-build
+          sudo apt-get install ninja-build
           pyodide build-recipes-no-deps --recipe-dir . --target-install-dir dist pyarrow
       - uses: actions/upload-artifact@v4
         with:
