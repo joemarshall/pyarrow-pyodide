@@ -34,9 +34,11 @@ jobs:
         with:
           version: ${{env.EMVERSION}}
           actions-cache-folder: 'emsdk-cache'
-      - run: mkdir dist
       - name: Arrow build
-        run: pyodide build-recipes-no-deps --recipe-dir . --target-install-dir dist pyarrow
+        run: |
+          mkdir dist
+          apt-get install ninja-build
+          pyodide build-recipes-no-deps --recipe-dir . --target-install-dir dist pyarrow
       - uses: actions/upload-artifact@v4
         with:
           name: build_wheel
