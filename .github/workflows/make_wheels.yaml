@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: install pyodide build
-        run: pip install pyodide-build==${{ matrix.pyodide }}
+        run: pip install pyodide-build==${{ matrix.pyodide }} wheel-filename
       - name: Get emscripten version
         run: |
           # import here will download the pyodide xbuild env which outputs a line to
@@ -34,10 +34,28 @@ jobs:
         with:
           version: ${{env.EMVERSION}}
           actions-cache-folder: 'emsdk-cache'
-      - name: Arrow build
+#      - name: Arrow build
+#        run: |
+#          sudo apt-get install ninja-build
+#          pyodide build-recipes-no-deps --recipe-dir . pyarrow
+      - name: Get info from built wheel file
         run: |
-          sudo apt-get install ninja-build
-          pyodide build-recipes-no-deps --recipe-dir . pyarrow
+          # get arrow version and wheel name and make metafile
+          ARROW_WHEEL=$(basename pyarrow/dist/*.whl)
+          ARROW_VERSION=$(wheel-filename ${ARROW_WHEEL} | jq '.version')
+          ARROW_SHA256=$(sha256sum pyarrow/dist/*.whl | cut -d ' ' -f 1)
+          echo ARROW_WHEEL=${ARROW_WHEEL}>>$GITHUB_ENV
+          echo ARROW_VERSION=${ARROW_VERSION}>>$GITHUB_ENV
+          echo ARROW_SHA256=${ARROW_SHA256}>>$GITHUB_ENV
+          echo ARROW_RELEASE_URL=https://github.com/${{ github.repository_owner }}/${{ github.repository }}/releases/download/${ARROW_VERSION}/${ARROW_WHEEL}
+          sed "s:#RELEASE_URL#:${AARROW_RELEASE_URL}:g;s:#RELEASE_SHA256#:${ARROW_SHA256}:g;s:#RELEASE_VERSION#:${ARROW_VERSION}:g;"\
+           < pyarrow/_meta_built_template.yaml > pyarrow/dist/${ARROW_WHEEL}.yaml
+      - name: Create release if not exist
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{env.ARROW_VERSION}}
+          name: Builds of Arrow ${{env.ARROW_VERSION}}
+          files: pyarrow/dist
       - uses: actions/upload-artifact@v4
         with:
           name: build_wheel
