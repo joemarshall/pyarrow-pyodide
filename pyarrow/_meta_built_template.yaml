@@ -1,0 +1,18 @@
+package:
+  name: pyarrow
+  version: #RELEASE_VERSION#
+  top-level:
+    - pyarrow
+source:
+  url: #RELEASE_URL#
+  sha256: #RELEASE_SHA256#
+requirements:
+  run:
+    - numpy
+    - pandas
+    - pyodide-unix-timezones
+  host:
+    - numpy
+extra:
+  recipe-maintainers:
+    - joemarshall
