@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: install pyodide build
-        run: pip install pyodide-build=${{ matrix.pyodide }}
+        run: pip install pyodide-build==${{ matrix.pyodide }}
       - name: Get emscripten version
         run: python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' >> $GITHUB_ENV
       - name: Install emsdk ${{env.EMVERSION}}
