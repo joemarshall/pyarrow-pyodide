@@ -29,15 +29,10 @@ jobs:
           python-version: ${{ env.PYVER }}
       - name: install pyodide build
         run: pip install pyodide-build>=${{ env.BUILDVER }} wheel-filename
-      - name: Get emscripten version
-        run: |
-          # import here will download the pyodide xbuild env which outputs a line to
-          # stdout, hence the tail -1
-          python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' | tail -1 >> $GITHUB_ENV
       - name: Install emsdk ${{env.EMVER}}
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: ${{env.EMVERSION}}
+          version: ${{env.EMVER}}
           actions-cache-folder: 'emsdk-cache'
       - name: Arrow build
         run: |
