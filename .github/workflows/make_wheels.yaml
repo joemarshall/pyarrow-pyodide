@@ -45,6 +45,10 @@ jobs:
           ARROW_VERSION=$(wheel-filename ${ARROW_WHEEL} | jq -r '.version')
           ARROW_SHA256=$(sha256sum pyarrow/dist/*.whl | cut -d ' ' -f 1)
           ARROW_RELEASE_URL=https://github.com/${{ github.repository_owner }}/${{ github.repository }}/releases/download/${{ inputs.pyodide }}/${ARROW_WHEEL}
+          echo ARROW_WHEEL=${ARROW_WHEEL}>>$GITHUB_ENV
+          echo ARROW_VERSION=${ARROW_VERSION}>>$GITHUB_ENV
+          echo ARROW_SHA256=${ARROW_SHA256}>>$GITHUB_ENV
+          
           sed "s:#RELEASE_URL#:${ARROW_RELEASE_URL}:g;s:#RELEASE_SHA256#:${ARROW_SHA256}:g;s:#RELEASE_VERSION#:${ARROW_VERSION}:g;"\
            < pyarrow/_meta_built_template.yaml > pyarrow/dist/${ARROW_WHEEL}.yaml
       - name: Upload the build artifacts for build debugging purposes
