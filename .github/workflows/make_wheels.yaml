@@ -48,8 +48,9 @@ jobs:
           echo ARROW_WHEEL=${ARROW_WHEEL}>>$GITHUB_ENV
           echo ARROW_VERSION=${ARROW_VERSION}>>$GITHUB_ENV
           echo ARROW_SHA256=${ARROW_SHA256}>>$GITHUB_ENV
-          
-          sed "s:#RELEASE_URL#:${ARROW_RELEASE_URL}:g;s:#RELEASE_SHA256#:${ARROW_SHA256}:g;s:#RELEASE_VERSION#:${ARROW_VERSION}:g;"\
+          # use £ as separator for sed call below, because most of the normal ones are
+          # either special characters in bash or URL characters
+          sed "s£#RELEASE_URL#£${ARROW_RELEASE_URL}£g;s£#RELEASE_SHA256#£${ARROW_SHA256}£g;s£#RELEASE_VERSION#£${ARROW_VERSION}£g;"\
            < pyarrow/_meta_built_template.yaml > pyarrow/dist/${ARROW_WHEEL}.yaml
       - name: Upload the build artifacts for build debugging purposes
         uses: actions/upload-artifact@v4
