@@ -3,16 +3,6 @@ name: main
 on:
   workflow_dispatch:
     inputs:
-      python:
-        description: 'Python version'
-        required: true
-        default: '3.12'
-        type: choice
-        options:
-          - 3.12
-          - 3.13
-          - 3.14
-          - 3.15
       pyodide:
         description: 'New Pyodide version to build for'
         required: true
@@ -25,17 +15,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Get correct versions of everything for this pyodide version
+        run: |
+          wget https://raw.githubusercontent.com/pyodide/pyodide/main/pyodide-cross-build-environments.json
+          emscripten_ver=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .emscripten_version" pyodide-cross-build-environments.json)
+          python_ver=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .python_version" pyodide-cross-build-environments.json)
+          min_pyodide_build=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .min_pyodide_build_version" pyodide-cross-build-environments.json)
+          echo PYVER=${python_ver}>>$GITHUB_ENV
+          echo EMVER=${emscripten_ver}>>$GITHUB_ENV
+          echo BUILDVER=${min_pyodide_build}>>$GITHUB_ENV
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python }}
+          python-version: ${{ env.PYVER }}
       - name: install pyodide build
-        run: pip install pyodide-build==${{ inputs.pyodide }} wheel-filename
+        run: pip install pyodide-build>=${{ env.BUILDVER }} wheel-filename
       - name: Get emscripten version
         run: |
           # import here will download the pyodide xbuild env which outputs a line to
           # stdout, hence the tail -1
           python -c 'from pyodide_build.build_env import emscripten_version;print(f"EMVERSION={emscripten_version()}")' | tail -1 >> $GITHUB_ENV
-      - name: Install emsdk ${{env.EMVERSION}}
+      - name: Install emsdk ${{env.EMVER}}
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: ${{env.EMVERSION}}
