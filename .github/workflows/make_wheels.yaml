@@ -44,7 +44,7 @@ jobs:
           ARROW_WHEEL=$(basename pyarrow/dist/*.whl)
           ARROW_VERSION=$(wheel-filename ${ARROW_WHEEL} | jq -r '.version')
           ARROW_SHA256=$(sha256sum pyarrow/dist/*.whl | cut -d ' ' -f 1)
-          ARROW_RELEASE_URL=https://github.com/${{ github.repository_owner }}/${{ github.repository }}/releases/download/${{ inputs.pyodide }}/${ARROW_WHEEL}
+          ARROW_RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ inputs.pyodide }}/${ARROW_WHEEL}
           echo ARROW_WHEEL=${ARROW_WHEEL}>>$GITHUB_ENV
           echo ARROW_VERSION=${ARROW_VERSION}>>$GITHUB_ENV
           echo ARROW_SHA256=${ARROW_SHA256}>>$GITHUB_ENV
