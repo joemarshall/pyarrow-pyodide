@@ -1,11 +1,11 @@
 package:
   name: pyarrow
-  version: 17.0.0
+  version: 19.0.1
   top-level:
     - pyarrow
 source:
-  url: https://github.com/apache/arrow/releases/download/apache-arrow-17.0.0/apache-arrow-17.0.0.tar.gz
-  sha256: 9d280d8042e7cf526f8c28d170d93bfab65e50f94569f6a790982a878d8d898d
+  url: https://github.com/apache/arrow/releases/download/apache-arrow-19.0.1/apache-arrow-19.0.1.tar.gz
+  sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
   #  extract_dir: arrow-57ac40ca23ebcaa4d42ae808137033689d3be9b1
   patches:
     - patches/autoload_timezones.patch
