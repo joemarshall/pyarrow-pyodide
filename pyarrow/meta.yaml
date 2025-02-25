@@ -42,7 +42,7 @@ about:
   home: https://arrow.apache.org/
   PyPI: https://pypi.org/project/pyarrow
   summary: Python library for Apache Arrow
-  license: Apache License, Version 2.0
+  license: Apache-2.0
 requirements:
   run:
     - numpy
