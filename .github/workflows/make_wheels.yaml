@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       pyodide:
-        description: 'New Pyodide version to build for'
+        description: 'New Pyodide version to build for (or latest)'
         required: true
         type: string
 permissions:
@@ -15,20 +15,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Get correct versions of everything for this pyodide version
+      - name: get pyodide nightly xbuildenv url
+        if: $${{ inputs.pyodide }} == "latest"
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'pyodide/pyodide-build-environment-nightly'
+          latest: true
+          fileName: *tar*
+          out-file-path: .build_env
+          extract: false
+      - name: Get xbuild environment from pyodide json
+        if: $${{ inputs.pyodide }} != "latest"
         run: |
           wget https://raw.githubusercontent.com/pyodide/pyodide/main/pyodide-cross-build-environments.json
           emscripten_ver=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .emscripten_version" pyodide-cross-build-environments.json)
           python_ver=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .python_version" pyodide-cross-build-environments.json)
           min_pyodide_build=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .min_pyodide_build_version" pyodide-cross-build-environments.json)
-          echo PYVER=${python_ver}>>$GITHUB_ENV
-          echo EMVER=${emscripten_ver}>>$GITHUB_ENV
-          echo BUILDVER=${min_pyodide_build}>>$GITHUB_ENV
+          xbuild_url=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .url" pyodide-cross-build-environments.json)
+          mkdir .build_env
+          cd .build_env
+          wget ${xbuild_url}         
+      - name: Get python etc. versions from xbuild environmengt
+        run: |
+          cd .build_env
+          tar -xjf *.tar.*
+          makefile_envs = $(find .build_env -name Makefile.envs | tail -n 1)
+          source ${makefile_envs}
+          echo PYVER=${PYVERSION}>>$GITHUB_ENV
+          echo EMVER=${PYODIDE_EMSCRIPTEN_VERSION}>>$GITHUB_ENV          
+          echo ACTUAL_PYODIDE_VERSION=${PYODIDE_VERSION}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYVER }}
-      - name: install pyodide build
-        run: pip install pyodide-build>=${{ env.BUILDVER }} wheel-filename
+      - name: install pyodide build and set xbuild environment
+        run: pip install pyodide-build wheel-filename
+             pyodide xbuildenv install .build_env/*.tar.*
       - name: Install emsdk ${{env.EMVER}}
         uses: mymindstorm/setup-emsdk@v14
         with:
@@ -61,8 +82,8 @@ jobs:
       - name: Create release 
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ inputs.pyodide }}
-          name: Build of Arrow for pyodide ${{ inputs.pyodide}}. pyarrow version = ${{env.ARROW_VERSION}}
+          tag: ${{ env.ACTUAL_PYODIDE_VERSION }}
+          name: Build of Arrow for pyodide ${{ env.ACTUAL_PYODIDE_VERSION}}. pyarrow version = ${{env.ARROW_VERSION}}
           artifacts: pyarrow/dist/*
           replacesArtifacts: true
           allowUpdates: true
