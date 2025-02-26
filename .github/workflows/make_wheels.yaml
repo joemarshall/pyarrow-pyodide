@@ -44,10 +44,9 @@ jobs:
           cd .build_env
           tar -xjf *.tar.*
           makefile_envs=$(find . -name Makefile.envs | tail -n 1)
-          source ${makefile_envs}
-          echo PYVER=${PYVERSION}>>$GITHUB_ENV
-          echo EMVER=${PYODIDE_EMSCRIPTEN_VERSION}>>$GITHUB_ENV          
-          echo ACTUAL_PYODIDE_VERSION=${PYODIDE_VERSION}
+          echo "PYVER=$(grep 'export PYVERSION ?=' ${makefile_envs} | cut -d' ' -f4)"  >> "$GITHUB_ENV"
+          echo "EMVER=$(grep 'export PYODIDE_EMSCRIPTEN_VERSION ?=' ${makefile_envs} | cut -d' ' -f4)"  >> "$GITHUB_ENV"
+          echo "ACTUAL_PYODIDE_VERSION=$(grep 'export PYODIDE_VERSION ?=' ${makefile_envs} | cut -d' ' -f4)"  >> "$GITHUB_ENV"
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYVER }}
