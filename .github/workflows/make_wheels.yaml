@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   build:
+    defaults:
+      run:
+        shell: bash
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +39,7 @@ jobs:
           mkdir .build_env
           cd .build_env
           wget ${xbuild_url}         
-      - name: Get python etc. versions from xbuild environmengt
+      - name: Get python etc. versions from xbuild environment
         run: |
           cd .build_env
           tar -xjf *.tar.*
