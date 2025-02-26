@@ -40,7 +40,7 @@ jobs:
         run: |
           cd .build_env
           tar -xjf *.tar.*
-          makefile_envs = $(find .build_env -name Makefile.envs | tail -n 1)
+          makefile_envs=$(find .build_env -name Makefile.envs | tail -n 1)
           source ${makefile_envs}
           echo PYVER=${PYVERSION}>>$GITHUB_ENV
           echo EMVER=${PYODIDE_EMSCRIPTEN_VERSION}>>$GITHUB_ENV          
