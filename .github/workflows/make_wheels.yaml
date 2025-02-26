@@ -55,7 +55,7 @@ jobs:
       - name: install pyodide build and set xbuild environment
         run: |
           pip install pyodide-build wheel-filename
-          pyodide xbuildenv install --url file://${PWD}/.build_env/*.tar.*
+          pyodide xbuildenv install --url file://$(realpath .build_env/*.tar.*)
       - name: Install emsdk ${{env.EMVER}}
         uses: mymindstorm/setup-emsdk@v14
         with:
