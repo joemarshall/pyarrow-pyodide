@@ -17,16 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: get pyodide nightly xbuildenv url
-        if: inputs.pyodide == "latest"
+        if: inputs.pyodide == 'latest'
         uses: robinraju/release-downloader@v1
         with:
           repository: 'pyodide/pyodide-build-environment-nightly'
           latest: true
-          fileName: "*tar*"
+          fileName: '*tar*'
           out-file-path: .build_env
           extract: false
       - name: Get xbuild environment from pyodide json
-        if: inputs.pyodide != "latest"
+        if: inputs.pyodide != 'latest'
         run: |
           wget https://raw.githubusercontent.com/pyodide/pyodide/main/pyodide-cross-build-environments.json
           emscripten_ver=$(jq -r ".releases | .[\"${{ inputs.pyodide }}\"]| .emscripten_version" pyodide-cross-build-environments.json)
