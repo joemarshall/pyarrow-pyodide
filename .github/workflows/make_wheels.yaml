@@ -21,7 +21,7 @@ jobs:
         with:
           repository: 'pyodide/pyodide-build-environment-nightly'
           latest: true
-          fileName: *tar*
+          fileName: "*tar*"
           out-file-path: .build_env
           extract: false
       - name: Get xbuild environment from pyodide json
