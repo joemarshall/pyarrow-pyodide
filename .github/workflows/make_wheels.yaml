@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: ${{ env.PYVER }}
       - name: install pyodide build and set xbuild environment
-        run: -
+        run: |
           pip install pyodide-build wheel-filename
           pyodide xbuildenv install .build_env/*.tar.*
       - name: Install emsdk ${{env.EMVER}}
