@@ -42,6 +42,8 @@ jobs:
       - name: Get python etc. versions from xbuild environment
         run: |
           cd .build_env
+          # workaround for wrong filename on pyodide nightly
+          mv xbuildenv.tar.gz xbuildenv.tar.bz || true
           tar -xjf *.tar.*
           makefile_envs=$(find . -name Makefile.envs | tail -n 1)
           echo "PYVER=$(grep 'export PYVERSION ?=' ${makefile_envs} | cut -d' ' -f4)"  >> "$GITHUB_ENV"
